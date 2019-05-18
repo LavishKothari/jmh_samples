@@ -8,7 +8,7 @@ Install the jmh plugin in intellij. This plugin makes the running of benchmarks 
 ## Some minor notes:
 
 * Benchmark classes should be in a package other than default.
-
+* `@State` classes should be `public`.
 
 ## Useful Annotations 
 
