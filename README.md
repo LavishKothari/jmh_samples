@@ -13,13 +13,27 @@ Install the jmh plugin in intellij. This plugin makes the running of benchmarks 
 ## Useful Annotations 
 
 * `@Benchmark`
+  * Methods annotated with `@Benchmark` are the methods which we want to measure.
+  * Benchmark method-names are non-essential. (They don't have any significance)
+  * Within a same class, you can have muliple `@Benchmark` methods.
+  * Note points:
+    * If the Benchmark method never finishes, JMH will also never finish.
+    * If an Exception is thrown, then the current Benchmark will end abruptly, and next benchmark method will run.
 * `@BenchmarkMode`
-  * `@BenchmarkMode(Mode.Throughput)`
+  * `@BenchmarkMode(Mode.Throughput)` (default)
   * `@BenchmarkMode(Mode.AverageTime)`
   * `@BenchmarkMode(Mode.SampleTime)`
   * `@BenchmarkMode(Mode.SingleShotTime)`
+    * for cold start - with no JVM warmups.
   * `@BenchmarkMode(Mode.All)`
 * `@OutputTimeUnit(TimeUnit.NANOSECONDS)`
+* `@State`
+  * The class annotated with `@State` should be `public`
+  * `@Setup` (You can have more than one methods annotated with `@Setup`)
+    * `@Setup(Level.Trial)` (default) - The method is called once for each time for each full run of the benchmark. A full run means a full "fork" including all warmup and benchmark iterations.
+    * `@Setup(Level.Iteration)` - The method is called once for each iteration of the benchmark.
+    * `@Setup(Level.Invocation)` - The method is called once for each call to the benchmark method.      
+  * `@Teardown`
 * `@Fork(1)`
 
 ## Different Benchmarks
@@ -99,3 +113,21 @@ ModBenchmark.testModulusOperator  thrpt    5  296.254 ± 43.096  ops/us
 ```
 
 **So remember that you should never make the members of `@State` class as final. (But it's generally a good programming practice to declare members `final`).**
+
+## Writing good benchmarks
+
+* **Dead code elimination**
+  * return the result of the computation from the benchmark method.
+  * use `Blackhole#consume` so that the JVM don't think that a particular computation is unused and simply ignores it.
+    * we generally use blackholes when we can't return multiple things from a single benchmark method. Or you can also combine multiple values into single value and return the result that you got after combining the values.
+* **Constant folding**
+  * Never hard-code constants into your benchmark methods. 
+  * Avoid using local members in benchmark methods. Input to your benchmark should come from the state object.
+  * Never declare the members of `@State` class as `final`.
+* **Loop Optimizations**
+  * JVM is very good at optimizing loops. So you should generally avoid loops inside your benchmark methods (unless they are actually a part of the code that you want to measure).
+
+## Useful links
+
+* [jenkov tutorial](http://tutorials.jenkov.com/java-performance/jmh.html)
+* [Sample examples](https://hg.openjdk.java.net/code-tools/jmh/file/1c11c886e0c8/jmh-samples/src/main/java/org/openjdk/jmh/samples/)
