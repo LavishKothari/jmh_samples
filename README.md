@@ -8,7 +8,7 @@ Install the jmh plugin in intellij. This plugin makes the running of benchmarks 
 ## Some minor notes:
 
 * Benchmark classes should be in a package other than default.
-* `@State` classes should be `public`.
+* `@State` classes should be `public` (otherwise you will get complie time error).
 
 ## Useful Annotations 
 
@@ -28,7 +28,7 @@ Install the jmh plugin in intellij. This plugin makes the running of benchmarks 
   * `@BenchmarkMode(Mode.All)`
 * `@OutputTimeUnit(TimeUnit.NANOSECONDS)`
 * `@State`
-  * The class annotated with `@State` should be `public`
+  * The class annotated with `@State` should be `public` (otherwise you will get complie time error).
   * `@Setup` (You can have more than one methods annotated with `@Setup`)
     * `@Setup(Level.Trial)` (default) - The method is called once for each time for each full run of the benchmark. A full run means a full "fork" including all warmup and benchmark iterations.
     * `@Setup(Level.Iteration)` - The method is called once for each iteration of the benchmark.
@@ -115,6 +115,8 @@ ModBenchmark.testModulusOperator  thrpt    5  296.254 ± 43.096  ops/us
 **So remember that you should never make the members of `@State` class as final. (But it's generally a good programming practice to declare members `final`).**
 
 ## Writing good benchmarks
+
+JMH helps you avoid the following points:
 
 * **Dead code elimination**
   * return the result of the computation from the benchmark method.
